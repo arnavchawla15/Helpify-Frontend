@@ -1535,3 +1535,29 @@
          grid-template-columns: 1fr;
      }
  }
+.fc-contact {
+     margin-top: 10px;
+     padding: 10px;
+     border-radius: 10px;
+     background: rgba(255, 255, 255, 0.05);
+     font-size: 13px;
+ }
+
+ .fc-contact.creator {
+     border-left: 3px solid #3b82f6;
+ }
+
+ .fc-contact.deliverer {
+     border-left: 3px solid #22c55e;
+ }
+
+ .fc-call {
+     display: inline-block;
+     margin-top: 6px;
+     padding: 4px 10px;
+     border-radius: 6px;
+     background: #111;
+     color: #fff;
+     text-decoration: none;
+     font-size: 12px;
+ }
