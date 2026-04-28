@@ -2,11 +2,15 @@
 //  HELPIFY DASHBOARD — dashboard.js
 // ═══════════════════════════════════════════
 
-// const API_AUTH = "http://localhost:8080/api/auth";
-const API_AUTH = "https://helpify-backend-iv27.onrender.com/api/auth";
-// const API_ORDERS = "http://localhost:8080/api/orders";
-const API_ORDERS = "https://helpify-backend-iv27.onrender.com/api/orders";
+if (!localStorage.getItem("token")) {
+    window.location.href = "login.html";
+}
 
+// const API_AUTH = "http://localhost:8080/api/auth";
+// const API_ORDERS = "http://localhost:8080/api/orders";
+// setInterval(loadOrders, 5000);
+const API_AUTH = "https://helpify-backend-iv27.onrender.com/api/auth";
+const API_ORDERS = "https://helpify-backend-iv27.onrender.com/api/orders";
 let currentUser = null;
 let allOrders = [];
 let activeFilter = "all";
@@ -14,17 +18,38 @@ let activeFilter = "all";
 // ─── INIT ───────────────────────────────────
 window.onload = async () => {
     await checkSession();
+
+    if (!currentUser) return; // 🔥 STOP if not logged in
+
     await loadOrders();
     setupScrollSpy();
 };
 
 // ─── SESSION ────────────────────────────────
 async function checkSession() {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        redirect();
+        return;
+    }
+
     try {
-        const res = await fetch(`${API_AUTH}/me`, { credentials: "include" });
-        if (!res.ok) { redirect(); return; }
+        const res = await fetch(`${API_AUTH}/me`, {
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        });
+
+        if (!res.ok) {
+            localStorage.removeItem("token");
+            redirect();
+            return;
+        }
+
         currentUser = await res.json();
         populateUser(currentUser);
+
     } catch {
         redirect();
     }
@@ -52,14 +77,22 @@ function populateUser(u) {
 // ─── LOAD ORDERS ────────────────────────────
 async function loadOrders() {
     try {
-        const res = await fetch(API_ORDERS, { credentials: "include" });
+        const res = await fetch(API_ORDERS, {
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            }
+        });
+
         if (!res.ok) throw new Error();
+
         allOrders = await res.json();
+        console.log("ORDERS:", allOrders);
 
         renderFeed();
         renderActivity();
         renderHistory();
         updateStats();
+
     } catch {
         showToast("⚠️ Could not load orders");
     }
@@ -70,7 +103,7 @@ function updateStats() {
     const mine = allOrders.filter(o => o.postedBy === currentUser.email || o.userEmail === currentUser.email);
     const completed = mine.filter(o => o.status === "COMPLETED" || o.status === "DELIVERED");
     const active = allOrders.filter(o => o.status === "POSTED");
-    const totalPaid = completed.reduce((sum, o) => sum + (o.amount || 20), 0);
+    const totalPaid = completed.reduce((sum, o) => sum + ((o.reward || 20)), 0);
 
     set("statRequests", mine.length || 0);
     set("statDelivered", completed.length || 0);
@@ -133,38 +166,86 @@ function renderFeed() {
         const isPrio = amount >= 40;
 
         let actions = "";
+        let contactInfo = ""; // 👈 NEW
 
+        // ================= ACTION BUTTONS =================
         if (o.status === "POSTED") {
             actions = `<button class="fc-btn fc-btn-accept" onclick="acceptOrder('${o.id}')">Accept →</button>`;
-        } else if (o.status === "ACCEPTED") {
+        }
+
+        else if (o.status === "ACCEPTED") {
+
+            // 👑 IF I ACCEPTED
             if (o.acceptedBy === currentUser.email) {
                 actions = `
-          <button class="fc-btn fc-btn-deliver" onclick="completeOrder('${o.id}')">✓ Deliver</button>
-          <button class="fc-btn fc-btn-cancel"  onclick="cancelOrder('${o.id}')">✕ Cancel</button>`;
-            } else {
-                actions = `<span class="fc-accepted-by">✓ Accepted by ${o.acceptedByName || o.acceptedBy || "someone"}</span>`;
+                <button class="fc-btn fc-btn-deliver" onclick="completeOrder('${o.id}')">✓ Deliver</button>
+                <button class="fc-btn fc-btn-cancel" onclick="cancelOrder('${o.id}')">✕ Cancel</button>
+            `;
+
+                // 🔥 SHOW CREATOR DETAILS
+                contactInfo = `
+                <div class="fc-contact creator">
+                    <div>👤 ${o.postedByName || "User"}</div>
+                    <div>📞 ${o.postedByPhone || "N/A"}</div>
+                    <a class="fc-call" href="tel:${o.postedByPhone}">Call</a>
+                </div>
+            `;
             }
-        } else if (o.status === "COMPLETED" || o.status === "DELIVERED") {
+
+            // 👑 IF I CREATED
+            else if (o.postedBy === currentUser.email) {
+
+                actions = `<span class="fc-accepted-by">✓ Accepted by ${o.acceptedByName || "someone"}</span>`;
+
+                // 🔥 SHOW DELIVERY GUY DETAILS
+                contactInfo = `
+                <div class="fc-contact deliverer">
+                    <div>🚀 ${o.acceptedByName || "Delivery Partner"}</div>
+                    <div>📞 ${o.acceptedByPhone || "N/A"}</div>
+                    <a class="fc-call" href="tel:${o.acceptedByPhone}">Call</a>
+                </div>
+            `;
+            }
+
+            // 👀 OTHERS
+            else {
+                actions = `<span class="fc-accepted-by">✓ Accepted by ${o.acceptedByName || "someone"}</span>`;
+            }
+        }
+
+        else if (o.status === "DELIVERED") {
             actions = `<span class="act-pill pill-done">✓ Delivered</span>`;
-        } else if (o.status === "CANCELLED") {
+        }
+
+        else if (o.status === "CANCELLED") {
             actions = `<span class="act-pill status-cancelled">✕ Cancelled</span>`;
         }
 
+        // ================= CARD =================
         const card = document.createElement("div");
         card.className = `feed-card${isPrio ? " priority" : ""} fade-in`;
+
         card.innerHTML = `
-      <div class="fc-top">
-        <div class="fc-title">
-          ${platformEmoji(o.platform)} ${o.title || o.orderName || "Pickup"}
-          ${isPrio ? '<span class="fc-prio-tag">⚡ Priority</span>' : ""}
+        <div class="fc-top">
+            <div class="fc-title">
+                ${platformEmoji(o.platform)} ${o.title || "Pickup"}
+                ${isPrio ? '<span class="fc-prio-tag">⚡ Priority</span>' : ""}
+            </div>
+            <div class="fc-price">₹${amount}</div>
         </div>
-        <div class="fc-price">₹${amount}</div>
-      </div>
-      <div class="fc-meta">${o.location || o.gate || "—"} · ${o.platform || "—"} · ${statusLabel(o.status)}</div>
-      <div class="fc-actions">
-        ${actions}
-        <div class="fc-time">⏱ ${timeAgo}</div>
-      </div>`;
+
+        <div class="fc-meta">
+            ${o.location || o.gate || "—"} · ${o.platform || "—"} · ${statusLabel(o.status)}
+        </div>
+
+        ${contactInfo} <!-- 🔥 INSERTED HERE -->
+
+        <div class="fc-actions">
+            ${actions}
+            <div class="fc-time">⏱ ${timeAgo}</div>
+        </div>
+    `;
+
         list.appendChild(card);
     });
 }
@@ -269,8 +350,10 @@ async function submitRequest() {
     try {
         const res = await fetch(API_ORDERS, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
             body: JSON.stringify({
                 title,
                 location,
@@ -309,7 +392,10 @@ async function cancelOrder(id) {
 async function orderAction(id, action, successMsg, failMsg) {
     try {
         const res = await fetch(`${API_ORDERS}/${id}/${action}`, {
-            method: "PUT", credentials: "include"
+            method: "PUT",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            }
         });
         if (!res.ok) throw new Error();
         showToast(successMsg);
@@ -325,16 +411,9 @@ async function saveProfile() {
 }
 
 // ─── LOGOUT ─────────────────────────────────
-async function logoutUser() {
-    const btn = document.getElementById("logoutBtn");
-    btn.disabled = true;
-    try {
-        await fetch(`${API_AUTH}/logout`, { method: "POST", credentials: "include" });
-        window.location.href = "login.html";
-    } catch {
-        showToast("Logout failed");
-        btn.disabled = false;
-    }
+function logoutUser() {
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
 }
 
 // ─── REWARD CHIPS ───────────────────────────
