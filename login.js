@@ -116,19 +116,20 @@ async function handleLogin(e) {
 
         if (!res.ok) throw new Error(data);
 
-        showMsg('✓ Login successful!', 'success');
+       showMsg('✓ Login successful!', 'success');
 
-        // check session
-        const meRes = await fetch(`${API_BASE}/me`, {
-            credentials: 'include'
-        });
+setTimeout(async () => {
+  const meRes = await fetch(`${API_BASE}/me`, {
+    credentials: 'include'
+  });
 
-        if (!meRes.ok) throw new Error("Session failed");
+  if (!meRes.ok) {
+    console.log("ME ERROR:", await meRes.text());
+    throw new Error("Session failed");
+  }
 
-        // 🔥 redirect
-        setTimeout(() => {
-            window.location.href = "dashboard.html";
-        }, 600);
+  window.location.href = "dashboard.html";
+}, 500);
 
     } catch (err) {
         showMsg(err.message || "Login failed", 'error');
