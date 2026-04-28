@@ -1,0 +1,2274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Helpify — Campus Delivery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6C63FF;
+      --primary-dark: #4C46C3;
+      --accent: #FF6584;
+      --accent2: #43E97B;
+      --surface: #0E0E1A;
+      --surface2: #15152A;
+      --surface3: #1C1C35;
+      --glass: rgba(255, 255, 255, 0.04);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --text: #F0EFF8;
+      --text-muted: #8B89A8;
+      --text-dim: #5A5878;
+      --card-bg: rgba(28, 28, 53, 0.9);
+      --success: #43E97B;
+      --warning: #FFB830;
+      --danger: #FF6584;
+      --radius: 20px;
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-body);
+      background: var(--surface);
+      color: var(--text)
+    }
+
+    /* CURSOR */
+    .cursor {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background: var(--primary);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform .15s, background .2s
+    }
+
+    .cursor-ring {
+      position: fixed;
+      width: 34px;
+      height: 34px;
+      border: 1.5px solid rgba(108, 99, 255, .45);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: width .3s, height .3s
+    }
+
+    @media(pointer:coarse) {
+
+      .cursor,
+      .cursor-ring {
+        display: none !important
+      }
+
+      body {
+        cursor: auto
+      }
+    }
+
+    /* NOISE */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+      opacity: .35;
+      pointer-events: none;
+      z-index: 0
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 52px;
+      backdrop-filter: blur(24px);
+      background: rgba(14, 14, 26, .75);
+      border-bottom: 1px solid var(--glass-border)
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #6C63FF, #FF6584);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      cursor: pointer;
+      text-decoration: none
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 8px
+    }
+
+    .nav-link {
+      padding: 7px 18px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all .2s;
+      letter-spacing: .3px
+    }
+
+    .nav-link:hover {
+      color: var(--text);
+      background: var(--glass)
+    }
+
+    .nav-link.active {
+      color: #A59DFF;
+      background: rgba(108, 99, 255, .15);
+      border-color: rgba(108, 99, 255, .3)
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .nav-cta {
+      background: var(--primary);
+      color: white;
+      padding: 9px 22px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+      font-family: var(--font-body);
+      text-decoration: none;
+      display: inline-block
+    }
+
+    .nav-cta:hover {
+      background: var(--primary-dark);
+      transform: scale(1.05)
+    }
+
+    .nav-auth-btn {
+      background: transparent;
+      color: var(--text-muted);
+      padding: 7px 16px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--glass-border);
+      transition: all .2s;
+      font-family: var(--font-body);
+      text-decoration: none;
+      display: inline-block
+    }
+
+    .nav-auth-btn:hover {
+      color: var(--text);
+      background: var(--glass);
+      border-color: var(--primary)
+    }
+
+    .nav-user-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 14px 5px 5px;
+      border-radius: 100px;
+      background: rgba(108, 99, 255, .1);
+      border: 1px solid rgba(108, 99, 255, .25);
+      cursor: pointer;
+      transition: all .2s;
+      text-decoration: none
+    }
+
+    .nav-user-badge:hover {
+      background: rgba(108, 99, 255, .18)
+    }
+
+    .nav-user-avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6C63FF, #FF6584);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      font-family: var(--font-display)
+    }
+
+    .nav-user-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #A59DFF
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, .05);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      padding: 8px
+    }
+
+    .hamburger span {
+      display: block;
+      width: 18px;
+      height: 1.5px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: all .3s
+    }
+
+    .hamburger.open span:nth-child(1) {
+      transform: translateY(6.5px) rotate(45deg)
+    }
+
+    .hamburger.open span:nth-child(2) {
+      opacity: 0
+    }
+
+    .hamburger.open span:nth-child(3) {
+      transform: translateY(-6.5px) rotate(-45deg)
+    }
+
+    /* PAGES */
+    .page {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .4s ease, transform .4s ease;
+      transform: translateY(20px)
+    }
+
+    .page.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0)
+    }
+
+    .page-inner {
+      flex: 1;
+      overflow: hidden;
+      padding-top: 70px;
+      display: flex;
+      flex-direction: column
+    }
+
+    /* ORBS */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: .12;
+      animation: float 8s ease-in-out infinite;
+      pointer-events: none
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translate(0, 0)
+      }
+
+      50% {
+        transform: translate(25px, -25px)
+      }
+    }
+
+    /* HOME */
+    #page-home .page-inner {
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden
+    }
+
+    .home-orb1 {
+      width: 550px;
+      height: 550px;
+      background: var(--primary);
+      top: -180px;
+      left: -80px;
+      animation-delay: 0s
+    }
+
+    .home-orb2 {
+      width: 380px;
+      height: 380px;
+      background: var(--accent);
+      bottom: -80px;
+      right: -60px;
+      animation-delay: 3s
+    }
+
+    .home-orb3 {
+      width: 280px;
+      height: 280px;
+      background: var(--accent2);
+      top: 45%;
+      left: 55%;
+      animation-delay: 6s
+    }
+
+    .hero-wrap {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 40px;
+      align-items: center;
+      max-width: 1200px;
+      width: 100%;
+      padding: 0 52px;
+      z-index: 2
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(108, 99, 255, .15);
+      border: 1px solid rgba(108, 99, 255, .3);
+      color: #A59DFF;
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 24px
+    }
+
+    .hero-tag .dot {
+      width: 7px;
+      height: 7px;
+      background: var(--primary);
+      border-radius: 50%;
+      animation: pulse 2s infinite
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: .5;
+        transform: scale(.8)
+      }
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(42px, 5.5vw, 78px);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -2px;
+      margin-bottom: 18px
+    }
+
+    .hero-title .grad {
+      background: linear-gradient(135deg, #6C63FF 0%, #FF6584 55%, #FFB830 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      max-width: 480px;
+      margin-bottom: 36px
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      padding: 14px 32px;
+      border-radius: 100px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-family: var(--font-body);
+      transition: all .3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 20px 50px rgba(108, 99, 255, .4)
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      padding: 14px 32px;
+      border-radius: 100px;
+      border: 1px solid var(--glass-border);
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: all .3s
+    }
+
+    .btn-secondary:hover {
+      background: var(--glass);
+      border-color: var(--primary)
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      margin-top: 48px;
+      padding-top: 36px;
+      border-top: 1px solid var(--glass-border)
+    }
+
+    .stat-item .num {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #6C63FF, #FF6584);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .stat-item .lbl {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px
+    }
+
+    /* PHONE MOCKUP */
+    .phone-3d {
+      width: 240px;
+      height: 490px;
+      background: linear-gradient(145deg, #1e1e38, #141426);
+      border-radius: 38px;
+      border: 1.5px solid rgba(255, 255, 255, .1);
+      transform: perspective(900px) rotateY(-14deg) rotateX(5deg);
+      box-shadow: -35px 35px 90px rgba(0, 0, 0, .6), 0 0 0 1px rgba(255, 255, 255, .04), inset 0 0 50px rgba(108, 99, 255, .05);
+      animation: phone-float 6s ease-in-out infinite;
+      overflow: hidden;
+      position: relative;
+      flex-shrink: 0
+    }
+
+    @keyframes phone-float {
+
+      0%,
+      100% {
+        transform: perspective(900px) rotateY(-14deg) rotateX(5deg) translateY(0)
+      }
+
+      50% {
+        transform: perspective(900px) rotateY(-14deg) rotateX(5deg) translateY(-12px)
+      }
+    }
+
+    .phone-notch {
+      width: 90px;
+      height: 24px;
+      background: #0a0a18;
+      border-radius: 0 0 18px 18px;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2
+    }
+
+    .phone-screen {
+      position: absolute;
+      inset: 0;
+      padding: 52px 14px 16px;
+      overflow: hidden
+    }
+
+    .phone-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 0 3px
+    }
+
+    .phone-time {
+      font-size: 11px;
+      font-weight: 600
+    }
+
+    .map-area {
+      background: linear-gradient(135deg, #1a2a4a, #1a3a2a);
+      border-radius: 14px;
+      height: 140px;
+      margin-bottom: 10px;
+      position: relative;
+      overflow: hidden
+    }
+
+    .map-grid {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(108, 99, 255, .15) 1px, transparent 1px), linear-gradient(90deg, rgba(108, 99, 255, .15) 1px, transparent 1px);
+      background-size: 26px 26px
+    }
+
+    .map-ping {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      background: rgba(255, 100, 100, .2);
+      border-radius: 50%;
+      top: 45%;
+      left: 30%;
+      transform: translate(-50%, -50%);
+      animation: ping 2s ease-out infinite
+    }
+
+    .map-ping-dot {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: var(--accent);
+      border-radius: 50%;
+      top: 50%;
+      left: 30%;
+      transform: translate(-50%, -50%);
+      border: 2px solid white
+    }
+
+    @keyframes ping {
+      0% {
+        transform: translate(-50%, -50%) scale(.5);
+        opacity: 1
+      }
+
+      100% {
+        transform: translate(-50%, -50%) scale(3);
+        opacity: 0
+      }
+    }
+
+    .map-pin {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700
+    }
+
+    .map-pin-a {
+      background: var(--primary);
+      top: 28%;
+      right: 33%;
+      color: white
+    }
+
+    .map-pin-b {
+      background: var(--success);
+      bottom: 28%;
+      right: 18%;
+      color: white
+    }
+
+    .req-pill {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 12px;
+      padding: 8px 10px;
+      margin-bottom: 8px
+    }
+
+    .req-pill .rp-lbl {
+      font-size: 8px;
+      color: rgba(255, 255, 255, .6);
+      text-transform: uppercase;
+      letter-spacing: 1px
+    }
+
+    .req-pill .rp-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      margin: 1px 0
+    }
+
+    .req-pill .rp-meta {
+      font-size: 9px;
+      color: rgba(255, 255, 255, .7)
+    }
+
+    .vol-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px
+    }
+
+    .vol-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255, 255, 255, .04);
+      border-radius: 9px;
+      padding: 6px 8px
+    }
+
+    .vol-av {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-weight: 700;
+      flex-shrink: 0
+    }
+
+    .vol-info {
+      flex: 1
+    }
+
+    .vol-name {
+      font-size: 10px;
+      font-weight: 600
+    }
+
+    .vol-dist {
+      font-size: 8px;
+      color: var(--text-muted)
+    }
+
+    .vol-price {
+      font-size: 10px;
+      font-weight: 700;
+      background: rgba(108, 99, 255, .2);
+      color: #A59DFF;
+      padding: 2px 6px;
+      border-radius: 5px
+    }
+
+    .phone-toast {
+      position: absolute;
+      bottom: 12px;
+      left: -20px;
+      background: rgba(67, 233, 123, .15);
+      border: 1px solid rgba(67, 233, 123, .3);
+      border-radius: 10px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--success);
+      font-weight: 600;
+      white-space: nowrap;
+      animation: toast-in .5s ease 2s both
+    }
+
+    @keyframes toast-in {
+      from {
+        opacity: 0;
+        transform: translateY(14px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    /* HOW IT WORKS */
+    #page-how .page-inner {
+      justify-content: center;
+      padding-left: 52px;
+      padding-right: 52px;
+      overflow-y: auto
+    }
+
+    .how-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto
+    }
+
+    .step-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--glass-border);
+      padding: 28px 24px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(20px);
+      transition: all .4s cubic-bezier(.34, 1.56, .64, 1)
+    }
+
+    .step-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: rgba(108, 99, 255, .4)
+    }
+
+    .step-num {
+      font-family: var(--font-display);
+      font-size: 56px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, .03);
+      position: absolute;
+      top: 8px;
+      right: 14px;
+      line-height: 1
+    }
+
+    .step-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 16px
+    }
+
+    .step-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px
+    }
+
+    .step-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6
+    }
+
+    /* BOOST */
+    #page-boost .page-inner {
+      justify-content: center;
+      padding-left: 52px;
+      padding-right: 52px;
+      overflow-y: auto
+    }
+
+    .boost-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto
+    }
+
+    .boost-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--glass-border);
+      padding: 32px;
+      backdrop-filter: blur(20px)
+    }
+
+    .boost-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px
+    }
+
+    .boost-card-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700
+    }
+
+    .priority-badge {
+      background: rgba(255, 184, 48, .15);
+      border: 1px solid rgba(255, 184, 48, .3);
+      color: var(--warning);
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+      animation: badge-pulse 2s ease-in-out infinite
+    }
+
+    @keyframes badge-pulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(255, 184, 48, .3)
+      }
+
+      50% {
+        box-shadow: 0 0 0 8px rgba(255, 184, 48, 0)
+      }
+    }
+
+    .vn-row {
+      background: rgba(108, 99, 255, .05);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 18px
+    }
+
+    .vn-lbl {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 10px
+    }
+
+    .vn-dots {
+      display: flex;
+      gap: 6px;
+      align-items: center
+    }
+
+    .vn-dot {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: white;
+      position: relative
+    }
+
+    .vn-dot.active::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      border: 2px solid var(--success);
+      animation: vol-ring 1.5s ease-in-out infinite
+    }
+
+    @keyframes vol-ring {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: .5;
+        transform: scale(1.15)
+      }
+    }
+
+    .vn-count {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-left: 4px
+    }
+
+    .price-display {
+      text-align: center;
+      padding: 20px 0;
+      margin-bottom: 18px;
+      border-top: 1px solid var(--glass-border);
+      border-bottom: 1px solid var(--glass-border)
+    }
+
+    .price-lbl {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px
+    }
+
+    .price-amount {
+      font-family: var(--font-display);
+      font-size: 58px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #6C63FF, #FF6584);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+      margin: 6px 0;
+      transition: all .3s
+    }
+
+    .price-sub {
+      font-size: 12px;
+      color: var(--text-muted)
+    }
+
+    .rapido-bar {
+      height: 5px;
+      border-radius: 100px;
+      background: rgba(255, 255, 255, .06);
+      overflow: hidden;
+      margin-bottom: 16px
+    }
+
+    .rapido-fill {
+      height: 100%;
+      border-radius: 100px;
+      background: linear-gradient(90deg, var(--primary), #FF6584);
+      transition: width .5s ease
+    }
+
+    .boost-opts {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px
+    }
+
+    .boost-opt {
+      flex: 1;
+      padding: 10px 6px;
+      border-radius: 10px;
+      border: 1px solid var(--glass-border);
+      background: transparent;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      text-align: center
+    }
+
+    .boost-opt:hover {
+      border-color: var(--primary);
+      background: rgba(108, 99, 255, .1)
+    }
+
+    .boost-opt.active {
+      border-color: var(--primary);
+      background: rgba(108, 99, 255, .2);
+      color: #A59DFF
+    }
+
+    .helper-text {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center
+    }
+
+    .helper-text span {
+      color: var(--primary);
+      font-weight: 600
+    }
+
+    /* FEATURES */
+    #page-features .page-inner {
+      padding-left: 52px;
+      padding-right: 52px;
+      overflow-y: auto;
+      padding-bottom: 24px
+    }
+
+    .features-wrap {
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto
+    }
+
+    .feat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 28px
+    }
+
+    .feat-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--glass-border);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: all .4s;
+      backdrop-filter: blur(20px)
+    }
+
+    .feat-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(108, 99, 255, .3)
+    }
+
+    .feat-card.wide {
+      grid-column: span 2
+    }
+
+    .feat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 14px
+    }
+
+    .feat-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px
+    }
+
+    .feat-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5
+    }
+
+    .status-flow {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 14px;
+      flex-wrap: wrap
+    }
+
+    .status-chip {
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600
+    }
+
+    .status-chip.done {
+      background: rgba(67, 233, 123, .15);
+      color: var(--success);
+      border: 1px solid rgba(67, 233, 123, .3)
+    }
+
+    .status-chip.active-chip {
+      background: rgba(108, 99, 255, .2);
+      color: #A59DFF;
+      border: 1px solid rgba(108, 99, 255, .4);
+      box-shadow: 0 0 16px rgba(108, 99, 255, .2)
+    }
+
+    .status-chip.waiting {
+      background: rgba(255, 255, 255, .05);
+      color: var(--text-dim);
+      border: 1px solid var(--glass-border)
+    }
+
+    .status-arrow {
+      color: var(--text-dim);
+      font-size: 11px
+    }
+
+    .map-section {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--glass-border);
+      padding: 24px;
+      backdrop-filter: blur(20px)
+    }
+
+    .map-section-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px
+    }
+
+    .map-section-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 18px
+    }
+
+    .campus-map-wrap {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      height: 260px;
+      background: linear-gradient(135deg, #0f1f2e, #0f2e1f)
+    }
+
+    .campus-map-wrap svg {
+      width: 100%;
+      height: 100%
+    }
+
+    .gate-legend {
+      display: flex;
+      gap: 20px;
+      margin-top: 14px
+    }
+
+    .gate-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px
+    }
+
+    .gate-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0
+    }
+
+    .gate-item span {
+      color: var(--text-muted)
+    }
+
+    .gate-item strong {
+      color: var(--text)
+    }
+
+    /* ROLES */
+    #page-roles .page-inner {
+      justify-content: center;
+      padding-left: 52px;
+      padding-right: 52px;
+      overflow-y: auto
+    }
+
+    .roles-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      max-width: 1000px;
+      width: 100%;
+      margin: 0 auto
+    }
+
+    .role-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--glass-border);
+      padding: 36px;
+      position: relative;
+      overflow: hidden;
+      transition: all .4s;
+      backdrop-filter: blur(20px)
+    }
+
+    .role-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px
+    }
+
+    .role-card.customer::after {
+      background: linear-gradient(90deg, var(--primary), #FF6584)
+    }
+
+    .role-card.volunteer::after {
+      background: linear-gradient(90deg, var(--success), #00CDB7)
+    }
+
+    .role-card:hover {
+      transform: translateY(-6px)
+    }
+
+    .role-icon {
+      font-size: 44px;
+      margin-bottom: 16px
+    }
+
+    .role-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 6px
+    }
+
+    .role-sub {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 20px
+    }
+
+    .role-perks {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin-bottom: 24px
+    }
+
+    .role-perks li {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 13px;
+      color: var(--text-muted)
+    }
+
+    .role-perks li::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0
+    }
+
+    .customer .role-perks li::before {
+      background: var(--primary)
+    }
+
+    .volunteer .role-perks li::before {
+      background: var(--success)
+    }
+
+    .role-btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 12px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+      text-decoration: none;
+      display: block;
+      text-align: center
+    }
+
+    .role-btn.cust {
+      background: var(--primary);
+      color: white
+    }
+
+    .role-btn.cust:hover {
+      background: var(--primary-dark)
+    }
+
+    .role-btn.vol {
+      background: rgba(67, 233, 123, .15);
+      color: var(--success);
+      border: 1px solid rgba(67, 233, 123, .3)
+    }
+
+    .role-btn.vol:hover {
+      background: rgba(67, 233, 123, .25)
+    }
+
+    /* SHARED SECTION HEADER */
+    .sec-hdr {
+      margin-bottom: 28px
+    }
+
+    .sec-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 10px
+    }
+
+    .sec-title {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 4vw, 46px);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 10px
+    }
+
+    .sec-sub {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 480px;
+      line-height: 1.6
+    }
+
+    /* LOADER */
+    #helpify-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: #0b0b0f;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity .4s ease, visibility .4s ease
+    }
+
+    #helpify-loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none
+    }
+
+    .loader-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px
+    }
+
+    .loader-logo {
+      display: flex;
+      gap: 4px;
+      font-family: var(--font-display);
+      font-size: clamp(42px, 8vw, 64px);
+      font-weight: 800;
+      letter-spacing: 2px;
+      user-select: none
+    }
+
+    .loader-letter {
+      opacity: 0;
+      transform: translateY(18px);
+      display: inline-block;
+      background: linear-gradient(135deg, #6C63FF 0%, #a78bfa 40%, #FF6584 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: none
+    }
+
+    .loader-letter.revealed {
+      animation: letterReveal .45s cubic-bezier(.34, 1.56, .64, 1) forwards
+    }
+
+    @keyframes letterReveal {
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .loader-letter.glow {
+      animation: letterGlow 2.2s ease-in-out infinite alternate
+    }
+
+    @keyframes letterGlow {
+      0% {
+        filter: drop-shadow(0 0 6px rgba(108, 99, 255, .35)) drop-shadow(0 0 20px rgba(108, 99, 255, .15))
+      }
+
+      100% {
+        filter: drop-shadow(0 0 14px rgba(167, 139, 250, .5)) drop-shadow(0 0 40px rgba(255, 101, 132, .2))
+      }
+    }
+
+    .loader-logo-wrap {
+      position: relative
+    }
+
+    .loader-logo-wrap::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 2px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #6C63FF, #FF6584);
+      transition: width .6s cubic-bezier(.22, 1, .36, 1)
+    }
+
+    .loader-logo-wrap.line-visible::after {
+      width: 80%
+    }
+
+    .loader-status {
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: rgba(255, 255, 255, .45);
+      height: 22px;
+      overflow: hidden;
+      position: relative;
+      min-width: 260px;
+      text-align: center
+    }
+
+    .loader-status-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity .3s ease, transform .3s ease;
+      white-space: nowrap
+    }
+
+    .loader-status-text.active {
+      opacity: 1;
+      transform: translateY(0)
+    }
+
+    .loader-status-text.exit {
+      opacity: 0;
+      transform: translateY(-10px)
+    }
+
+    .loader-progress-wrap {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: rgba(255, 255, 255, .04)
+    }
+
+    .loader-progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #6C63FF, #a78bfa, #FF6584);
+      border-radius: 0 4px 4px 0;
+      transition: width .15s linear;
+      box-shadow: 0 0 12px rgba(108, 99, 255, .4)
+    }
+
+    .loader-hint {
+      font-family: var(--font-body);
+      font-size: 11px;
+      color: rgba(255, 255, 255, .15);
+      letter-spacing: .5px;
+      position: fixed;
+      bottom: 20px;
+      opacity: 0;
+      animation: hintFade .8s ease .8s forwards
+    }
+
+    @keyframes hintFade {
+      to {
+        opacity: 1
+      }
+    }
+
+    .loader-logo-wrap.float {
+      animation: loaderFloat 3s ease-in-out infinite
+    }
+
+    @keyframes loaderFloat {
+
+      0%,
+      100% {
+        transform: translateY(0)
+      }
+
+      50% {
+        transform: translateY(-6px)
+      }
+    }
+
+    /* NEAR GATE NOTIFICATION */
+    #nearGateNotification {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(28, 28, 53, .95);
+      border: 1px solid rgba(108, 99, 255, .3);
+      color: var(--text);
+      padding: 14px 20px;
+      border-radius: 14px;
+      backdrop-filter: blur(20px);
+      display: none;
+      z-index: 9999;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
+      font-size: 14px;
+      font-weight: 600
+    }
+
+    /* RESPONSIVE */
+    @media(max-width:900px) {
+      nav {
+        padding: 14px 20px
+      }
+
+      .hamburger {
+        display: flex
+      }
+
+      .nav-links {
+        display: none;
+        position: fixed;
+        top: 62px;
+        left: 0;
+        right: 0;
+        background: rgba(14, 14, 26, .97);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--glass-border);
+        flex-direction: column;
+        gap: 0;
+        padding: 10px 0;
+        z-index: 199
+      }
+
+      .nav-links.open {
+        display: flex
+      }
+
+      .nav-link {
+        border-radius: 0;
+        padding: 13px 24px;
+        border: none;
+        border-bottom: 1px solid var(--glass-border);
+        font-size: 15px
+      }
+
+      .hero-wrap {
+        grid-template-columns: 1fr;
+        padding: 0 20px
+      }
+
+      .phone-3d {
+        display: none
+      }
+
+      .hero-stats {
+        gap: 20px
+      }
+
+      .how-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px
+      }
+
+      .boost-wrap {
+        grid-template-columns: 1fr;
+        gap: 24px
+      }
+
+      .feat-grid {
+        grid-template-columns: 1fr
+      }
+
+      .feat-card.wide {
+        grid-column: span 1
+      }
+
+      .roles-wrap {
+        grid-template-columns: 1fr
+      }
+
+      #page-how .page-inner,
+      #page-boost .page-inner,
+      #page-features .page-inner,
+      #page-roles .page-inner {
+        padding-left: 20px;
+        padding-right: 20px
+      }
+    }
+
+    @media(max-width:540px) {
+      .how-grid {
+        grid-template-columns: 1fr
+      }
+
+      .hero-stats {
+        flex-direction: column;
+        gap: 12px
+      }
+
+      .hero-btns {
+        flex-direction: column
+      }
+
+      .btn-primary,
+      .btn-secondary {
+        text-align: center;
+        justify-content: center
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- LOADER -->
+  <div id="helpify-loader">
+    <div class="loader-content">
+      <div class="loader-logo-wrap">
+        <div class="loader-logo">
+          <span class="loader-letter">H</span><span class="loader-letter">E</span>
+          <span class="loader-letter">L</span><span class="loader-letter">P</span>
+          <span class="loader-letter">I</span><span class="loader-letter">F</span>
+          <span class="loader-letter">Y</span>
+        </div>
+      </div>
+      <div class="loader-status" id="loaderStatus"></div>
+    </div>
+    <div class="loader-progress-wrap">
+      <div class="loader-progress-bar" id="loaderBar"></div>
+    </div>
+    <div class="loader-hint">click anywhere to speed up</div>
+  </div>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="nav-logo">Helpify</a>
+    <div class="nav-links" id="navLinks">
+      <div class="nav-link" data-page="home" onclick="goPage('home');closeMenu()">Home</div>
+      <div class="nav-link" data-page="how" onclick="goPage('how');closeMenu()">How It Works</div>
+      <div class="nav-link" data-page="boost" onclick="goPage('boost');closeMenu()">Priority Boost</div>
+      <div class="nav-link" data-page="features" onclick="goPage('features');closeMenu()">Features & Map</div>
+      <div class="nav-link" data-page="roles" onclick="goPage('roles');closeMenu()">Join</div>
+    </div>
+    <div class="nav-right">
+      <a href="login.html" class="nav-auth-btn" id="navAuthBtn">Login / Signup</a>
+      <a href="dashboard.html" class="nav-user-badge" id="navUserBadge" style="display:none;">
+        <div class="nav-user-avatar" id="navUserAvatar">?</div>
+        <span class="nav-user-name" id="navUserName">User</span>
+      </a>
+      <a href="dashboard.html" class="nav-cta">Open App →</a>
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <!-- PAGE: HOME -->
+  <div class="page active" id="page-home">
+    <div class="page-inner">
+      <div class="orb home-orb1 orb"></div>
+      <div class="orb home-orb2 orb"></div>
+      <div class="orb home-orb3 orb"></div>
+      <div class="hero-wrap">
+        <div>
+          <div class="hero-tag"><span class="dot"></span> Bennett University — Campus Delivery</div>
+          <h1 class="hero-title">Your order.<br><span class="grad">Delivered within</span><br>campus.</h1>
+          <p class="hero-sub">Skip the 750m walk to the gate. Post a pickup request, a volunteer collects your order —
+            you earn time, they earn money.</p>
+          <div class="hero-btns">
+            <a href="dashboard.html" class="btn-primary">Post a Request →</a>
+            <button class="btn-secondary" onclick="goPage('how')">See How It Works</button>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-item">
+              <div class="num">₹20</div>
+              <div class="lbl">Minimum reward</div>
+            </div>
+            <div class="stat-item">
+              <div class="num">~5 min</div>
+              <div class="lbl">Average pickup</div>
+            </div>
+            <div class="stat-item">
+              <div class="num">750m</div>
+              <div class="lbl">Walk you skip</div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-3d">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-status"><span class="phone-time">9:41</span><span style="font-size:9px">▐▐▐ 📶</span>
+            </div>
+            <div class="map-area">
+              <div class="map-grid"></div>
+              <div class="map-ping"></div>
+              <div class="map-ping-dot"></div>
+              <div class="map-pin map-pin-a">A</div>
+              <div class="map-pin map-pin-b">B</div>
+            </div>
+            <div class="req-pill">
+              <div class="rp-lbl">Active Request</div>
+              <div class="rp-name">📦 Amazon Parcel — Gate 1</div>
+              <div class="rp-meta">₹20 reward · 0.2km from gate</div>
+            </div>
+            <div class="vol-list">
+              <div class="vol-item">
+                <div class="vol-av" style="background:#6C63FF">RS</div>
+                <div class="vol-info">
+                  <div class="vol-name">Rohit S.</div>
+                  <div class="vol-dist">120m from gate</div>
+                </div>
+                <div class="vol-price">₹20</div>
+              </div>
+              <div class="vol-item">
+                <div class="vol-av" style="background:#43E97B">PM</div>
+                <div class="vol-info">
+                  <div class="vol-name">Priya M.</div>
+                  <div class="vol-dist">80m from gate</div>
+                </div>
+                <div class="vol-price">₹15</div>
+              </div>
+              <div class="vol-item">
+                <div class="vol-av" style="background:#FF6584">AK</div>
+                <div class="vol-info">
+                  <div class="vol-name">Aditya K.</div>
+                  <div class="vol-dist">200m from gate</div>
+                </div>
+                <div class="vol-price">₹25</div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-toast">✓ ₹100 earned</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: HOW IT WORKS -->
+  <div class="page" id="page-how">
+    <div class="page-inner" style="justify-content:center;padding-left:52px;padding-right:52px;">
+      <div style="max-width:1100px;width:100%;margin:0 auto;">
+        <div class="sec-hdr">
+          <div class="sec-tag">How it works</div>
+          <div class="sec-title">Simple. Fast. Rewarding.</div>
+          <div class="sec-sub">Four steps from order to your door — no app download needed.</div>
+        </div>
+        <div class="how-grid">
+          <div class="step-card">
+            <div class="step-num">01</div>
+            <div class="step-icon" style="background:rgba(108,99,255,.15)">📝</div>
+            <div class="step-title">Post Request</div>
+            <p class="step-desc">Enter your order name, pickup gate, hostel & room. Set your reward — minimum ₹20.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">02</div>
+            <div class="step-icon" style="background:rgba(67,233,123,.15)">🎯</div>
+            <div class="step-title">Volunteer Accepts</div>
+            <p class="step-desc">Nearby students browsing the feed accept your request. You get their name and number
+              instantly.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">03</div>
+            <div class="step-icon" style="background:rgba(255,101,132,.15)">📞</div>
+            <div class="step-title">Coordinate</div>
+            <p class="step-desc">Call the delivery agent, say "Hand it to [volunteer name]". They collect, you track
+              live.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">04</div>
+            <div class="step-icon" style="background:rgba(255,184,48,.15)">🏠</div>
+            <div class="step-title">Delivered!</div>
+            <p class="step-desc">Volunteer marks delivered, you confirm received. Pay via cash or UPI. Both rate each
+              other.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: BOOST -->
+  <div class="page" id="page-boost">
+    <div class="page-inner">
+      <div class="boost-wrap">
+        <div>
+          <div class="sec-tag">🔥 Priority Boost</div>
+          <div class="sec-title">Need it faster?<br>Boost your price.</div>
+          <p class="sec-sub">Like Rapido surge pricing — raise your reward to jump to the top of the volunteer feed.
+            Higher price = faster acceptance.</p>
+          <div style="margin-top:28px;display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div
+                style="width:36px;height:36px;border-radius:10px;background:rgba(108,99,255,.15);display:flex;align-items:center;justify-content:center;font-size:18px;">
+                👀</div>
+              <div style="font-size:14px;color:var(--text-muted);">Volunteer sees your request <strong
+                  style="color:var(--text)">first</strong> in the feed</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div
+                style="width:36px;height:36px;border-radius:10px;background:rgba(255,184,48,.15);display:flex;align-items:center;justify-content:center;font-size:18px;">
+                ⚡</div>
+              <div style="font-size:14px;color:var(--text-muted);">Average acceptance drops from <strong
+                  style="color:var(--text)">5 min → 90 sec</strong></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div
+                style="width:36px;height:36px;border-radius:10px;background:rgba(67,233,123,.15);display:flex;align-items:center;justify-content:center;font-size:18px;">
+                💸</div>
+              <div style="font-size:14px;color:var(--text-muted);">You set the price — pay only what you're comfortable
+                with</div>
+            </div>
+          </div>
+        </div>
+        <div class="boost-card">
+          <div class="boost-hd">
+            <div class="boost-card-title">Amazon Parcel</div>
+            <div class="priority-badge">🔥 Priority</div>
+          </div>
+          <div class="vn-row">
+            <div class="vn-lbl">3 volunteers nearby</div>
+            <div class="vn-dots">
+              <div class="vn-dot active" style="background:#6C63FF">RS</div>
+              <div class="vn-dot active" style="background:#43E97B">PM</div>
+              <div class="vn-dot" style="background:#FF6584;opacity:.5">AK</div>
+              <div class="vn-count">+2 more</div>
+            </div>
+          </div>
+          <div class="price-display">
+            <div class="price-lbl">Current Reward</div>
+            <div class="price-amount" id="boostPrice">₹20</div>
+            <div class="price-sub">Higher price = top of feed</div>
+          </div>
+          <div class="rapido-bar">
+            <div class="rapido-fill" id="boostBar" style="width:33%"></div>
+          </div>
+          <div class="boost-opts">
+            <button class="boost-opt active" onclick="setBoost(0,this)">Base ₹20</button>
+            <button class="boost-opt" onclick="setBoost(10,this)">+₹10 Boost</button>
+            <button class="boost-opt" onclick="setBoost(20,this)">+₹20 🔥</button>
+            <button class="boost-opt" onclick="setBoost(40,this)">+₹40 🚀</button>
+          </div>
+          <div class="helper-text"><span>Higher price = faster acceptance</span> — volunteers see your request first
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: FEATURES + MAP -->
+  <div class="page" id="page-features">
+    <div class="page-inner">
+      <div class="features-wrap">
+        <div class="sec-hdr">
+          <div class="sec-tag">Platform Features</div>
+          <div class="sec-title">Built for trust. Designed for speed.</div>
+        </div>
+        <div class="feat-grid">
+          <div class="feat-card">
+            <div class="feat-icon" style="background:rgba(108,99,255,.15)">🎓</div>
+            <div class="feat-title">College ID Verified</div>
+            <p class="feat-desc">Every user uploads their Bennett University ID. Only verified students, zero strangers.
+            </p>
+          </div>
+          <div class="feat-card">
+            <div class="feat-icon" style="background:rgba(67,233,123,.15)">💬</div>
+            <div class="feat-title">Instant Contact</div>
+            <p class="feat-desc">Once accepted, phone numbers are shared. Direct coordination, zero delays.</p>
+          </div>
+          <div class="feat-card wide">
+            <div class="feat-icon" style="background:rgba(255,184,48,.15)">📊</div>
+            <div class="feat-title">Live Request Status</div>
+            <p class="feat-desc">Track every step of your delivery in real-time.</p>
+            <div class="status-flow"><span class="status-chip done">Pending</span><span
+                class="status-arrow">→</span><span class="status-chip done">Accepted</span><span
+                class="status-arrow">→</span><span class="status-chip active-chip">Picked Up</span><span
+                class="status-arrow">→</span><span class="status-chip waiting">Delivered</span><span
+                class="status-arrow">→</span><span class="status-chip waiting">Completed</span></div>
+          </div>
+          <div class="feat-card">
+            <div class="feat-icon" style="background:rgba(255,101,132,.15)">💰</div>
+            <div class="feat-title">Cash / UPI Payment</div>
+            <p class="feat-desc">Pay directly — no middleman, no transaction fees. Full amount to your helper.</p>
+          </div>
+          <div class="feat-card">
+            <div class="feat-icon" style="background:rgba(108,99,255,.15)">🔔</div>
+            <div class="feat-title">Smart Notifications</div>
+            <p class="feat-desc">Instant alerts when your request is accepted, picked up, or delivered.</p>
+          </div>
+          <div class="feat-card">
+            <div class="feat-icon" style="background:rgba(67,233,123,.15)">🛡️</div>
+            <div class="feat-title">Admin Safety Net</div>
+            <p class="feat-desc">24/7 admin monitoring. Volunteers who ghost get banned. Ratings keep quality high.</p>
+          </div>
+        </div>
+        <div class="map-section">
+          <div class="map-section-title">📍 Bennett University — Campus Gates</div>
+          <div class="map-section-sub">All pickup points are at these gates. Volunteers operate within campus.</div>
+          <div class="campus-map-wrap">
+            <svg viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" style="display:block;">
+              <defs>
+                <linearGradient id="mapBg" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#0f1a2e" />
+                  <stop offset="100%" style="stop-color:#0a1f12" />
+                </linearGradient>
+                <filter id="softGlow">
+                  <feGaussianBlur stdDeviation="6" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+              <rect width="900" height="260" fill="url(#mapBg)" />
+              <g stroke="rgba(108,99,255,0.12)" stroke-width="1">
+                <line x1="0" y1="52" x2="900" y2="52" />
+                <line x1="0" y1="104" x2="900" y2="104" />
+                <line x1="0" y1="156" x2="900" y2="156" />
+                <line x1="0" y1="208" x2="900" y2="208" />
+                <line x1="90" y1="0" x2="90" y2="260" />
+                <line x1="180" y1="0" x2="180" y2="260" />
+                <line x1="270" y1="0" x2="270" y2="260" />
+                <line x1="360" y1="0" x2="360" y2="260" />
+                <line x1="450" y1="0" x2="450" y2="260" />
+                <line x1="540" y1="0" x2="540" y2="260" />
+                <line x1="630" y1="0" x2="630" y2="260" />
+                <line x1="720" y1="0" x2="720" y2="260" />
+                <line x1="810" y1="0" x2="810" y2="260" />
+              </g>
+              <rect x="60" y="20" width="780" height="220" rx="12" fill="none" stroke="rgba(108,99,255,0.25)"
+                stroke-width="1.5" stroke-dasharray="8,4" />
+              <text x="450" y="14" fill="rgba(108,99,255,0.5)" font-size="10" text-anchor="middle"
+                font-family="DM Sans,sans-serif" letter-spacing="3">BENNETT UNIVERSITY CAMPUS BOUNDARY</text>
+              <rect x="60" y="118" width="780" height="24" rx="4" fill="rgba(30,40,60,0.8)"
+                stroke="rgba(80,100,150,0.3)" stroke-width="1" />
+              <g stroke="rgba(255,255,255,0.07)" stroke-width="1" stroke-dasharray="20,12">
+                <line x1="60" y1="130" x2="840" y2="130" />
+              </g>
+              <rect x="430" y="20" width="20" height="220" fill="rgba(30,40,60,0.6)" stroke="rgba(80,100,150,0.2)"
+                stroke-width="1" />
+              <rect x="90" y="40" width="110" height="65" rx="6" fill="rgba(108,99,255,0.08)"
+                stroke="rgba(108,99,255,0.2)" stroke-width="1" /><text x="145" y="68" fill="rgba(160,157,255,0.6)"
+                font-size="9" text-anchor="middle" font-family="DM Sans,sans-serif">Academic</text><text x="145" y="80"
+                fill="rgba(160,157,255,0.6)" font-size="9" text-anchor="middle"
+                font-family="DM Sans,sans-serif">Block</text>
+              <rect x="240" y="40" width="90" height="65" rx="6" fill="rgba(67,233,123,0.06)"
+                stroke="rgba(67,233,123,0.15)" stroke-width="1" /><text x="285" y="74" fill="rgba(100,200,140,0.6)"
+                font-size="9" text-anchor="middle" font-family="DM Sans,sans-serif">Library</text>
+              <rect x="560" y="40" width="100" height="65" rx="6" fill="rgba(255,184,48,0.06)"
+                stroke="rgba(255,184,48,0.15)" stroke-width="1" /><text x="610" y="74" fill="rgba(200,150,60,0.6)"
+                font-size="9" text-anchor="middle" font-family="DM Sans,sans-serif">Admin</text>
+              <rect x="700" y="40" width="80" height="55" rx="6" fill="rgba(255,101,132,0.07)"
+                stroke="rgba(255,101,132,0.15)" stroke-width="1" /><text x="740" y="74" fill="rgba(200,100,130,0.6)"
+                font-size="9" text-anchor="middle" font-family="DM Sans,sans-serif">Hostel H1</text>
+              <rect x="700" y="160" width="80" height="55" rx="6" fill="rgba(255,101,132,0.07)"
+                stroke="rgba(255,101,132,0.15)" stroke-width="1" /><text x="740" y="183" fill="rgba(200,100,130,0.6)"
+                font-size="9" text-anchor="middle" font-family="DM Sans,sans-serif">Hostel</text><text x="740" y="195"
+                fill="rgba(200,100,130,0.6)" font-size="9" text-anchor="middle" font-family="DM Sans,sans-serif">H2 /
+                H3</text>
+              <rect x="100" y="160" width="80" height="50" rx="6" fill="rgba(255,184,48,0.07)"
+                stroke="rgba(255,184,48,0.15)" stroke-width="1" /><text x="140" y="187" fill="rgba(200,160,60,0.6)"
+                font-size="9" text-anchor="middle" font-family="DM Sans,sans-serif">Canteen</text>
+              <rect x="220" y="160" width="100" height="50" rx="6" fill="rgba(67,233,123,0.05)"
+                stroke="rgba(67,233,123,0.12)" stroke-width="1" /><text x="270" y="187" fill="rgba(80,190,130,0.5)"
+                font-size="9" text-anchor="middle" font-family="DM Sans,sans-serif">Sports</text>
+              <g filter="url(#softGlow)">
+                <circle cx="60" cy="130" r="16" fill="rgba(108,99,255,0.25)" stroke="rgba(108,99,255,0.6)"
+                  stroke-width="1.5" />
+                <circle cx="60" cy="130" r="8" fill="#6C63FF" /><text x="60" y="134" fill="white" font-size="8"
+                  text-anchor="middle" font-family="Syne,sans-serif" font-weight="700">G1</text>
+              </g>
+              <circle cx="60" cy="130" r="20" fill="none" stroke="rgba(108,99,255,0.4)" stroke-width="1">
+                <animate attributeName="r" values="16;28;16" dur="2.5s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.6;0;0.6" dur="2.5s" repeatCount="indefinite" />
+              </circle>
+              <g filter="url(#softGlow)">
+                <circle cx="450" cy="240" r="16" fill="rgba(255,184,48,0.25)" stroke="rgba(255,184,48,0.7)"
+                  stroke-width="1.5" />
+                <circle cx="450" cy="240" r="8" fill="#FFB830" /><text x="450" y="244" fill="white" font-size="7"
+                  text-anchor="middle" font-family="Syne,sans-serif" font-weight="700">G2</text>
+              </g>
+              <circle cx="450" cy="240" r="20" fill="none" stroke="rgba(255,184,48,0.4)" stroke-width="1">
+                <animate attributeName="r" values="16;30;16" dur="3s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.6;0;0.6" dur="3s" repeatCount="indefinite" />
+              </circle>
+              <text x="450" y="258" fill="rgba(255,184,48,0.7)" font-size="8" text-anchor="middle"
+                font-family="DM Sans,sans-serif" font-weight="600">MAIN GATE</text>
+              <g filter="url(#softGlow)">
+                <circle cx="840" cy="130" r="16" fill="rgba(67,233,123,0.25)" stroke="rgba(67,233,123,0.6)"
+                  stroke-width="1.5" />
+                <circle cx="840" cy="130" r="8" fill="#43E97B" /><text x="840" y="134" fill="white" font-size="8"
+                  text-anchor="middle" font-family="Syne,sans-serif" font-weight="700">G3</text>
+              </g>
+              <circle cx="840" cy="130" r="20" fill="none" stroke="rgba(67,233,123,0.4)" stroke-width="1">
+                <animate attributeName="r" values="16;28;16" dur="2s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite" />
+              </circle>
+              <text x="62" y="107" fill="rgba(160,157,255,0.8)" font-size="9" text-anchor="middle"
+                font-family="DM Sans,sans-serif" font-weight="600">Gate 1</text>
+              <text x="840" y="107" fill="rgba(80,210,140,0.8)" font-size="9" text-anchor="middle"
+                font-family="DM Sans,sans-serif" font-weight="600">Gate 3</text>
+              <circle cx="160" cy="125" r="4" fill="#6C63FF" opacity="0.8">
+                <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.8s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="300" cy="135" r="4" fill="#43E97B" opacity="0.8">
+                <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2.2s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="600" cy="128" r="4" fill="#FF6584" opacity="0.8">
+                <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.5s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="720" cy="132" r="4" fill="#6C63FF" opacity="0.6">
+                <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite" />
+              </circle>
+              <line x1="370" y1="248" x2="530" y2="248" stroke="rgba(255,255,255,0.2)" stroke-width="1" />
+              <line x1="370" y1="244" x2="370" y2="252" stroke="rgba(255,255,255,0.2)" stroke-width="1" />
+              <line x1="530" y1="244" x2="530" y2="252" stroke="rgba(255,255,255,0.2)" stroke-width="1" />
+              <text x="450" y="244" fill="rgba(255,255,255,0.25)" font-size="8" text-anchor="middle"
+                font-family="DM Sans,sans-serif">~750m</text>
+              <g transform="translate(856,22)">
+                <circle r="14" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.1)" stroke-width="1" /><text
+                  x="0" y="-5" fill="rgba(255,255,255,0.5)" font-size="7" text-anchor="middle"
+                  font-family="DM Sans">N</text>
+                <polygon points="0,-9 3,0 -3,0" fill="rgba(255,255,255,0.4)" />
+                <polygon points="0,9 3,0 -3,0" fill="rgba(255,255,255,0.15)" />
+              </g>
+            </svg>
+          </div>
+          <div class="gate-legend">
+            <div class="gate-item">
+              <div class="gate-dot" style="background:#6C63FF;box-shadow:0 0 6px rgba(108,99,255,.5)"></div><strong>Gate
+                1</strong><span>West entry — near H1 block</span>
+            </div>
+            <div class="gate-item">
+              <div class="gate-dot" style="background:#FFB830;box-shadow:0 0 6px rgba(255,184,48,.5)"></div><strong>Gate
+                2</strong><span>Main Gate — Zomato / Swiggy / Blinkit</span>
+            </div>
+            <div class="gate-item">
+              <div class="gate-dot" style="background:#43E97B;box-shadow:0 0 6px rgba(67,233,123,.5)"></div><strong>Gate
+                3</strong><span>East entry — near H2/H3 block</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: ROLES / JOIN -->
+  <div class="page" id="page-roles">
+    <div class="page-inner">
+      <div style="max-width:1000px;width:100%;margin:0 auto;">
+        <div class="sec-hdr">
+          <div class="sec-tag">Two Sides</div>
+          <div class="sec-title">Choose your role.</div>
+          <div class="sec-sub">Order or deliver — Helpify works for every student on campus.</div>
+        </div>
+        <div class="roles-wrap">
+          <div class="role-card customer">
+            <div class="role-icon">🛍️</div>
+            <div class="role-title">Customer</div>
+            <div class="role-sub">Save time, get more done</div>
+            <ul class="role-perks">
+              <li>Post pickup requests in under 60 seconds</li>
+              <li>Track your volunteer live on map</li>
+              <li>Boost price for instant acceptance</li>
+              <li>Pay cash or UPI — no app charges</li>
+              <li>Full order history & receipts</li>
+              <li>Rate your volunteer after delivery</li>
+            </ul>
+            <a href="dashboard.html" class="role-btn cust">Post Your First Request →</a>
+          </div>
+          <div class="role-card volunteer">
+            <div class="role-icon">🏃</div>
+            <div class="role-title">Volunteer</div>
+            <div class="role-sub">Earn while you're already outside</div>
+            <ul class="role-perks">
+              <li>Browse requests near the gate</li>
+              <li>Pick high-paying or boosted requests</li>
+              <li>Earn ₹20–₹60+ per delivery</li>
+              <li>Build delivery streak & reputation</li>
+              <li>Flexible — earn when you want</li>
+              <li>Priority requests shown on top</li>
+            </ul>
+            <a href="dashboard.html" class="role-btn vol">Start Earning as Volunteer →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="nearGateNotification"></div>
+
+  <script>
+    // const API_BASE = "https://helpify-backend-iv27.onrender.com/api/auth";
+    const API_BASE = "http://localhost:8080/api/auth";
+
+    // ── CURSOR ──
+    const isTouchDevice = () => window.matchMedia('(pointer:coarse)').matches;
+    const cur = document.getElementById('cursor'), ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    if (!isTouchDevice()) {
+      document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cur.style.left = mx + 'px'; cur.style.top = my + 'px' });
+      function animRing() { rx += (mx - rx) * .12; ry += (my - ry) * .12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(animRing) }
+      animRing();
+      document.querySelectorAll('a,button,.step-card,.feat-card,.role-card,.nav-link,.boost-opt').forEach(el => {
+        el.addEventListener('mouseenter', () => { cur.style.transform = 'translate(-50%,-50%) scale(2)'; ring.style.width = '56px'; ring.style.height = '56px' });
+        el.addEventListener('mouseleave', () => { cur.style.transform = 'translate(-50%,-50%) scale(1)'; ring.style.width = '34px'; ring.style.height = '34px' });
+      });
+    }
+
+    // ── PAGE ROUTER ──
+    const pages = ['home', 'how', 'boost', 'features', 'roles'];
+    function goPage(id) {
+      pages.forEach(p => {
+        document.getElementById('page-' + p).classList.remove('active');
+        const link = document.querySelector(`.nav-link[data-page="${p}"]`);
+        if (link) link.classList.remove('active');
+      });
+      document.getElementById('page-' + id).classList.add('active');
+      const link = document.querySelector(`.nav-link[data-page="${id}"]`);
+      if (link) link.classList.add('active');
+    }
+    goPage('home');
+
+    // ── NAV HAMBURGER ──
+    function toggleMenu() {
+      const m = document.getElementById('navLinks'), b = document.getElementById('hamburger');
+      m.classList.toggle('open'); b.classList.toggle('open');
+    }
+    function closeMenu() {
+      document.getElementById('navLinks').classList.remove('open');
+      document.getElementById('hamburger').classList.remove('open');
+    }
+    document.addEventListener('click', e => { if (!document.querySelector('nav').contains(e.target)) closeMenu() });
+
+    // ── BOOST ──
+    function setBoost(extra, btn) {
+      document.querySelectorAll('.boost-opt').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const amt = 20 + extra;
+      document.getElementById('boostPrice').textContent = '₹' + amt;
+      document.getElementById('boostBar').style.width = Math.min(100, (amt / 60) * 100) + '%';
+    }
+
+    // ── SESSION CHECK: show user badge if logged in ──
+    (async function checkSession() {
+      try {
+        const res = await fetch(`${API_BASE}/me`, { credentials: 'include' });
+        if (!res.ok) return;
+        const user = await res.json();
+        const name = user.username || user.name || 'User';
+        document.getElementById('navAuthBtn').style.display = 'none';
+        document.getElementById('navUserBadge').style.display = 'flex';
+        document.getElementById('navUserAvatar').textContent = name.charAt(0).toUpperCase();
+        document.getElementById('navUserName').textContent = name;
+      } catch (e) { }
+    })();
+
+    // ── NEAR GATE NOTIFICATION ──
+    const GATES = [{ name: 'Gate 1', lat: 28.448596, lng: 77.581971 }, { name: 'Gate 2', lat: 28.4500, lng: 77.5000 }, { name: 'Gate 3', lat: 28.451627, lng: 77.587009 }];
+    const RADIUS = 200;
+    function getDistance(lat1, lng1, lat2, lng2) { const R = 6371e3, r = x => x * Math.PI / 180; const a = Math.sin(r(lat2 - lat1) / 2) ** 2 + Math.cos(r(lat1)) * Math.cos(r(lat2)) * Math.sin(r(lng2 - lng1) / 2) ** 2; return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) }
+    function checkNearbyGates() {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        GATES.forEach(g => {
+          if (getDistance(lat, lng, g.lat, g.lng) <= RADIUS) {
+            const box = document.getElementById('nearGateNotification');
+            box.textContent = `🚀 New order available near ${g.name}!`;
+            box.style.display = 'block';
+            setTimeout(() => box.style.display = 'none', 5000);
+          }
+        });
+      });
+    }
+    setTimeout(checkNearbyGates, 3000);
+    setInterval(checkNearbyGates, 30000);
+
+    // ── LOADER ──
+    (function initLoader() {
+      const loader = document.getElementById('helpify-loader');
+      if (!loader) return;
+      const letters = loader.querySelectorAll('.loader-letter');
+      const logoWrap = loader.querySelector('.loader-logo-wrap');
+      const statusEl = document.getElementById('loaderStatus');
+      const bar = document.getElementById('loaderBar');
+      const messages = ['Connecting to campus network...', 'Locating nearby volunteers...', 'Syncing delivery requests...', 'Checking gate activity...', 'Almost ready...'];
+      let speedMultiplier = 1, msgIndex = 0, currentMsgEl = null;
+      const TOTAL_DURATION = 2500;
+      let startTime = Date.now(), finished = false, msgTimer;
+
+      function speedUp() { if (!finished) speedMultiplier = 2.5 }
+      document.addEventListener('click', speedUp, { once: false });
+
+      letters.forEach((l, i) => {
+        setTimeout(() => {
+          l.classList.add('revealed');
+          if (i === letters.length - 1) {
+            setTimeout(() => { letters.forEach(ll => ll.classList.add('glow')); logoWrap.classList.add('line-visible'); setTimeout(() => logoWrap.classList.add('float'), 400) }, 350);
+          }
+        }, 100 * i);
+      });
+
+      function showMessage(text) {
+        if (currentMsgEl) { currentMsgEl.classList.remove('active'); currentMsgEl.classList.add('exit'); const old = currentMsgEl; setTimeout(() => { if (old.parentNode) old.parentNode.removeChild(old) }, 300) }
+        const el = document.createElement('div'); el.className = 'loader-status-text'; el.textContent = text;
+        statusEl.appendChild(el); void el.offsetWidth; requestAnimationFrame(() => el.classList.add('active')); currentMsgEl = el;
+      }
+
+      function cycleMessages() {
+        if (finished || msgIndex >= messages.length) return;
+        showMessage(messages[msgIndex++]);
+        msgTimer = setTimeout(cycleMessages, (600 + Math.random() * 300) / speedMultiplier);
+      }
+      setTimeout(cycleMessages, 400);
+
+      function tick() {
+        if (finished) return;
+        const elapsed = (Date.now() - startTime) * speedMultiplier;
+        const progress = Math.min(elapsed / TOTAL_DURATION, 1);
+        const eased = 1 - Math.pow(1 - progress, 2.5);
+        bar.style.width = (eased * 100) + '%';
+        if (progress >= 1) { finish(); return }
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+
+      function finish() {
+        if (finished) return;
+        finished = true; clearTimeout(msgTimer);
+        document.removeEventListener('click', speedUp);
+        bar.style.width = '100%';
+        setTimeout(() => { loader.classList.add('hidden'); setTimeout(() => loader.style.display = 'none', 450) }, 200);
+      }
+    })();
+  </script>
+</body>
+
+</html>

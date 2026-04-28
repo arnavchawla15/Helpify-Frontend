@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Helpify — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="./css/dashboard.css">
+</head>
+
+<body>
+
+  <div class="sb-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
+
+  <div class="shell">
+    <!-- ═══════════ SIDEBAR ═══════════ -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sb-logo-wrap">
+        <div class="sb-logo">help<span>ify</span></div>
+        <div class="sb-tagline">Campus Delivery Network</div>
+      </div>
+
+      <div class="sb-user">
+        <div class="sb-av" id="sbAv">?</div>
+        <div>
+          <div class="sb-user-name" id="sbName">Loading…</div>
+          <div class="sb-user-email" id="sbEmail">…</div>
+        </div>
+      </div>
+
+      <nav class="sb-nav">
+        <div class="sb-section">Navigate</div>
+        <a class="sb-item active" onclick="scrollTo('s-overview')">
+          <span class="sb-item-icon">◈</span> Overview
+        </a>
+        <a class="sb-item" onclick="scrollTo('s-create')">
+          <span class="sb-item-icon">＋</span> Post Request
+        </a>
+        <a class="sb-item" onclick="scrollTo('s-feed')">
+          <span class="sb-item-icon">◫</span> Request Feed
+          <span class="sb-badge" id="feedCount">—</span>
+        </a>
+
+        <div class="sb-section">Account</div>
+        <a class="sb-item" onclick="scrollTo('s-history')">
+          <span class="sb-item-icon">⊡</span> My History
+        </a>
+        <a class="sb-item" onclick="scrollTo('s-profile')">
+          <span class="sb-item-icon">◎</span> Profile
+        </a>
+
+        <div class="sb-section">More</div>
+        <a href="index.html" class="sb-item">
+          <span class="sb-item-icon">←</span> Back to Site
+        </a>
+      </nav>
+
+      <div class="sb-footer">
+        <button class="sb-logout" id="logoutBtn" onclick="logoutUser()">
+          <span>↪</span> Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- ═══════════ MAIN ═══════════ -->
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" onclick="toggleSidebar()">
+            <span></span><span></span><span></span>
+          </button>
+          <div>
+            <div class="topbar-title">Dashboard</div>
+            <div class="topbar-bread">helpify / <span id="topSub">overview</span></div>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="tb-chip"><span class="tb-chip-dot"></span> Live</div>
+          <div class="tb-btn" onclick="document.getElementById('s-create').scrollIntoView({behavior:'smooth'})"
+            title="New Request">＋</div>
+          <div class="tb-btn" title="Refresh" onclick="loadOrders()">↻</div>
+        </div>
+      </header>
+
+      <div class="content" id="mainContent">
+
+        <!-- ──── OVERVIEW ──── -->
+        <div id="s-overview">
+          <!-- Hero -->
+          <div class="hero fade-in">
+            <div class="hero-text">
+              <div class="greeting">// welcome back</div>
+              <div class="hero-name" id="heroName">Loading…</div>
+              <div class="hero-sub">Your campus delivery hub is ready.</div>
+            </div>
+            <div class="hero-emoji">🚀</div>
+          </div>
+
+          <!-- Stats -->
+          <div class="stats-row fade-in" id="statsRow">
+            <div class="stat s-violet">
+              <div class="stat-glow"></div>
+              <div class="stat-icon">📦</div>
+              <div class="stat-lbl">Requests</div>
+              <div class="stat-val" id="statRequests">—</div>
+              <div class="stat-delta" id="statReqDelta">loading…</div>
+            </div>
+            <div class="stat s-lime">
+              <div class="stat-glow"></div>
+              <div class="stat-icon">⏱</div>
+              <div class="stat-lbl">Delivered</div>
+              <div class="stat-val" id="statDelivered">—</div>
+              <div class="stat-delta">completed orders</div>
+            </div>
+            <div class="stat s-amber">
+              <div class="stat-glow"></div>
+              <div class="stat-icon">⚡</div>
+              <div class="stat-lbl">Total Paid</div>
+              <div class="stat-val" id="statPaid">—</div>
+              <div class="stat-delta">in rewards</div>
+            </div>
+            <div class="stat s-rose">
+              <div class="stat-glow"></div>
+              <div class="stat-icon">🔄</div>
+              <div class="stat-lbl">Active Now</div>
+              <div class="stat-val" id="statActive">—</div>
+              <div class="stat-delta">open requests</div>
+            </div>
+          </div>
+
+          <!-- Activity + Quick Actions -->
+          <div class="two-col fade-in">
+            <div class="card">
+              <div class="card-head">Recent Activity <span id="actCount"></span></div>
+              <div class="activity-list" id="activityList">
+                <div class="skel" style="height:56px;margin-bottom:8px"></div>
+                <div class="skel" style="height:56px;margin-bottom:8px"></div>
+                <div class="skel" style="height:56px"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">Quick Actions</div>
+              <div class="qa-list">
+                <div class="qa-item" onclick="smoothTo('s-create')">
+                  <span class="qa-icon">📝</span>
+                  <div>
+                    <div class="qa-label">Post New Request</div>
+                    <div class="qa-sub">Set reward, gate & room</div>
+                  </div>
+                  <span class="qa-arr">→</span>
+                </div>
+                <div class="qa-item" onclick="smoothTo('s-feed')">
+                  <span class="qa-icon">📋</span>
+                  <div>
+                    <div class="qa-label">Browse Feed</div>
+                    <div class="qa-sub" id="qaFeedSub">Loading requests…</div>
+                  </div>
+                  <span class="qa-arr">→</span>
+                </div>
+                <div class="qa-item" onclick="smoothTo('s-history')">
+                  <span class="qa-icon">📊</span>
+                  <div>
+                    <div class="qa-label">View History</div>
+                    <div class="qa-sub" id="qaHistSub">Loading history…</div>
+                  </div>
+                  <span class="qa-arr">→</span>
+                </div>
+                <div class="qa-item" onclick="smoothTo('s-profile')">
+                  <span class="qa-icon">👤</span>
+                  <div>
+                    <div class="qa-label">Edit Profile</div>
+                    <div class="qa-sub">Update details</div>
+                  </div>
+                  <span class="qa-arr">→</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ──── CREATE REQUEST ──── -->
+        <div id="s-create" style="margin-top:8px">
+          <div class="section-header">
+            <div class="section-title">Post New Request</div>
+          </div>
+          <div class="card fade-in" style="max-width:680px">
+            <div class="card-head">📦 New Pickup Request</div>
+
+            <div class="create-grid">
+              <div class="field">
+                <label class="field-lbl">Order Name</label>
+                <input class="f-input" type="text" placeholder="e.g. Dominos Pizza" id="orderName" />
+              </div>
+              <div class="field">
+                <label class="field-lbl">Platform</label>
+                <select class="f-select" id="orderPlatform">
+                  <option>Zomato</option>
+                  <option>Swiggy</option>
+                  <option>Blinkit</option>
+                  <option>Amazon</option>
+                  <option>Flipkart</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="field-lbl">Pickup Gate</label>
+                <select class="f-select" id="orderGate">
+                  <option value="Gate 1">Gate 1 — West Entry</option>
+                  <option value="Gate 2">Gate 2 — Main Gate</option>
+                  <option value="Gate 3">Gate 3 — East Entry</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="field-lbl">Hostel / Room</label>
+                <input class="f-input" type="text" placeholder="e.g. H3, Room 204" id="orderRoom" />
+              </div>
+            </div>
+
+            <div class="field-lbl" style="margin-bottom:10px">Reward & Boost</div>
+            <div class="reward-chips">
+              <div class="r-chip sel" onclick="selReward(this)">
+                <span class="chip-val">₹20</span>
+                <span class="chip-tag">Base</span>
+              </div>
+              <div class="r-chip" onclick="selReward(this)">
+                <span class="chip-val">₹30</span>
+                <span class="chip-tag">+₹10</span>
+              </div>
+              <div class="r-chip" onclick="selReward(this)">
+                <span class="chip-val">₹40</span>
+                <span class="chip-tag">🔥 Hot</span>
+              </div>
+              <div class="r-chip" onclick="selReward(this)">
+                <span class="chip-val">₹60</span>
+                <span class="chip-tag">🚀 Turbo</span>
+              </div>
+            </div>
+
+            <div class="hint-box">
+              💡 Higher reward = top of feed = faster pickup. Turbo gets you ~2x faster response.
+            </div>
+
+            <button class="submit-btn" id="postBtn" onclick="submitRequest()">
+              Post Request →
+            </button>
+          </div>
+        </div>
+
+        <!-- ──── FEED ──── -->
+        <div id="s-feed" style="margin-top:40px">
+          <div class="section-header">
+            <div class="section-title">Active Requests</div>
+            <div class="section-action" onclick="loadOrders()">↻ Refresh</div>
+          </div>
+
+          <div class="filter-row">
+            <button class="fpill active" onclick="filterFeed(this,'all')">All Gates</button>
+            <button class="fpill" onclick="filterFeed(this,'Gate 1')">Gate 1</button>
+            <button class="fpill" onclick="filterFeed(this,'Gate 2')">Gate 2</button>
+            <button class="fpill" onclick="filterFeed(this,'Gate 3')">Gate 3</button>
+          </div>
+
+          <div class="feed-list" id="feedList">
+            <div class="skel" style="height:110px"></div>
+            <div class="skel" style="height:110px;margin-top:12px"></div>
+          </div>
+        </div>
+
+        <!-- ──── HISTORY ──── -->
+        <div id="s-history" style="margin-top:40px">
+          <div class="section-header">
+            <div class="section-title">My History</div>
+          </div>
+
+          <div class="hist-stats" id="histStats">
+            <div class="hs">
+              <div class="hs-val" style="color:var(--violet)" id="hsTotalReq">—</div>
+              <div class="hs-lbl">Total Requests</div>
+            </div>
+            <div class="hs">
+              <div class="hs-val" style="color:var(--lime)" id="hsTotalPaid">—</div>
+              <div class="hs-lbl">Total Paid</div>
+            </div>
+            <div class="hs">
+              <div class="hs-val" style="color:var(--amber)" id="hsCompleted">—</div>
+              <div class="hs-lbl">Completed</div>
+            </div>
+          </div>
+
+          <div class="hist-list" id="histList">
+            <div class="skel" style="height:66px"></div>
+            <div class="skel" style="height:66px;margin-top:8px"></div>
+          </div>
+        </div>
+
+        <!-- ──── PROFILE ──── -->
+        <div id="s-profile" style="margin-top:40px; padding-bottom:48px">
+          <div class="section-header">
+            <div class="section-title">Profile</div>
+          </div>
+
+          <div class="profile-grid fade-in">
+            <div class="profile-card">
+              <div class="pav-wrap">
+                <div class="pav" id="profileAv">?</div>
+                <div class="pav-dot"></div>
+              </div>
+              <div class="p-name" id="profileName">—</div>
+              <div class="p-email" id="profileEmail">—</div>
+              <div class="p-badges">
+                <span class="p-badge pb-v">✓ Verified</span>
+                <span class="p-badge pb-p">Active</span>
+              </div>
+              <div class="p-mini-stats">
+                <div class="pms">
+                  <div class="pms-val" style="color:var(--violet)" id="pmReq">—</div>
+                  <div class="pms-lbl">Requests</div>
+                </div>
+                <div class="pms">
+                  <div class="pms-val" style="color:var(--lime)" id="pmDone">—</div>
+                  <div class="pms-lbl">Done</div>
+                </div>
+                <div class="pms">
+                  <div class="pms-val" style="color:var(--amber)" id="pmPaid">—</div>
+                  <div class="pms-lbl">Paid</div>
+                </div>
+                <div class="pms">
+                  <div class="pms-val" style="color:var(--rose)" id="pmActive">—</div>
+                  <div class="pms-lbl">Active</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="edit-card">
+              <div class="card-head">✏️ Edit Profile</div>
+              <div class="edit-grid">
+                <div class="field">
+                  <label class="field-lbl">Full Name</label>
+                  <input class="f-input" type="text" id="editName" placeholder="Your name" />
+                </div>
+                <div class="field">
+                  <label class="field-lbl">Phone</label>
+                  <input class="f-input" type="text" placeholder="+91 98765 43210" />
+                </div>
+                <div class="field">
+                  <label class="field-lbl">Hostel Block</label>
+                  <input class="f-input" type="text" placeholder="e.g. H3 Block" />
+                </div>
+                <div class="field">
+                  <label class="field-lbl">Room Number</label>
+                  <input class="f-input" type="text" placeholder="e.g. 204" />
+                </div>
+                <div class="field" style="grid-column:span 2">
+                  <label class="field-lbl">Email (read-only)</label>
+                  <input class="f-input" type="email" id="editEmail" readonly style="opacity:.5;cursor:not-allowed" />
+                </div>
+              </div>
+              <button class="submit-btn" onclick="saveProfile()">Save Changes</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /content -->
+    </div><!-- /main -->
+  </div><!-- /shell -->
+
+  <div class="toast" id="toast"></div>
+
+  <script src="dashboard.js"></script>
+</body>
+
+</html>
