@@ -1,4 +1,3 @@
-
 // LOCAL (testing)
 // const API_BASE = "http://localhost:8080/api/auth";
 
@@ -33,6 +32,7 @@ async function handleSignup(e) {
     const username = document.getElementById('signupUsername').value.trim();
     const email = document.getElementById('signupEmail').value.trim().toLowerCase();
     const password = document.getElementById('signupPassword').value;
+    const phone = document.getElementById('signupPhone').value.trim();
 
     if (!username || !email || !password) {
         showMsg('Fill all fields', 'error');
@@ -45,15 +45,18 @@ async function handleSignup(e) {
         const res = await fetch(`${API_BASE}/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, email, password })
+            body: JSON.stringify({
+                username,
+                email,
+                password,
+                phone
+            })
         });
 
         const data = await res.text();
-
         if (!res.ok) throw new Error(data);
 
         showMsg('✓ OTP sent to email', 'success');
-
         document.getElementById('otpEmail').value = email;
 
     } catch (err) {
@@ -78,7 +81,6 @@ async function handleVerifyOtp(e) {
         });
 
         const data = await res.text();
-
         if (!res.ok) throw new Error(data);
 
         showMsg('✓ Verified! Now login', 'success');
@@ -90,7 +92,7 @@ async function handleVerifyOtp(e) {
     }
 }
 
-// ================= LOGIN =================
+// ================= LOGIN (JWT VERSION) =================
 async function handleLogin(e) {
     e.preventDefault();
 
@@ -108,28 +110,22 @@ async function handleLogin(e) {
         const res = await fetch(`${API_BASE}/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
             body: JSON.stringify({ email, password })
         });
 
-        const data = await res.text();
+        const data = await res.json();
 
         if (!res.ok) throw new Error(data);
 
-       showMsg('✓ Login successful!', 'success');
+        // 🔥 STORE TOKEN
+        localStorage.setItem("token", data.token);
 
-setTimeout(async () => {
-  const meRes = await fetch(`${API_BASE}/me`, {
-    credentials: 'include'
-  });
+        showMsg('✓ Login successful!', 'success');
 
-  if (!meRes.ok) {
-    console.log("ME ERROR:", await meRes.text());
-    throw new Error("Session failed");
-  }
-
-  window.location.href = "dashboard.html";
-}, 500);
+        // 🔥 REDIRECT DIRECTLY (NO /me CALL)
+        setTimeout(() => {
+            window.location.href = "dashboard.html";
+        }, 500);
 
     } catch (err) {
         showMsg(err.message || "Login failed", 'error');
@@ -138,15 +134,11 @@ setTimeout(async () => {
     }
 }
 
-// ================= AUTO REDIRECT =================
-(async function checkSession() {
-    try {
-        const res = await fetch(`${API_BASE}/me`, {
-            credentials: 'include'
-        });
+// ================= AUTO REDIRECT (JWT) =================
+(function checkLogin() {
+    const token = localStorage.getItem("token");
 
-        if (res.ok) {
-            window.location.href = "dashboard.html";
-        }
-    } catch { }
+    if (token) {
+        window.location.href = "dashboard.html";
+    }
 })();
