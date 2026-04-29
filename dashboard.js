@@ -238,7 +238,7 @@ function renderFeed() {
             ${o.location || o.gate || "—"} · ${o.platform || "—"} · ${statusLabel(o.status)}
         </div>
 
-        ${contactInfo} <!-- 🔥 INSERTED HERE -->
+        ${contactInfo} 
 
         <div class="fc-actions">
             ${actions}
